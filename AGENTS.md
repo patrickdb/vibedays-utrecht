@@ -10,19 +10,23 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # todo-cat
 
-todo-cat is a to-do list web app kept by Lissie, a cat with attitude (an AI agent, coming later).
-It is a Next.js 16 App Router app with npm workspaces `contract/` (shared zod schemas) and `cli/` (the `todo-cat` CLI), both still empty.
+A to-do list web app kept by Lissie, a cat with attitude (an AI agent, coming later).
+Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI), both still empty.
 
 ## Commands
 
-- `npm run dev` — start the dev server.
-- `npm run build` — production build.
-- `npm run lint` — Biome check; must pass before committing.
-- `npm run format` — Biome format, writes files.
+Run from the repo root.
 
-## Verify against current docs
+- `npm install` installs the root app and both workspaces.
+- `npm run dev` starts the dev server on http://localhost:3000.
+- `npm run build` builds the app for production.
+- `npm run lint` runs `biome check` (lint, format and import order); it must pass before every commit.
+- `npm run format` rewrites files with the Biome formatter.
 
-The technologies here are newer than your training data; check APIs against current docs instead of memory.
+## Verify, don't recall
+
+- Next.js, React, Tailwind, TypeScript and Biome here are newer than your training data.
+- Check APIs against current docs (`node_modules/next/dist/docs/` for Next.js) before writing code, not against memory.
 
 ## Tech docs
 
@@ -31,13 +35,14 @@ The technologies here are newer than your training data; check APIs against curr
 - Describe approach, principles, design decisions with their reasons, and gotchas.
 - Point to the central files instead of copying code.
 - Leave out anything an agent finds out by reading the code.
-- Describe the current state only; delete outdated content instead of adding caveats.
+- Current state only: delete outdated content instead of adding caveats.
 
 Index:
 
-- [tech-docs/workspaces.md](tech-docs/workspaces.md) — workspace layout and why it exists.
+- [workspaces.md](tech-docs/workspaces.md) — the npm workspace layout and why it exists before its content does.
+- [testing.md](tech-docs/testing.md) — Vitest and Playwright strategy, commands and gotchas.
 
-## Maintenance
+## Keeping this map current
 
-Update AGENTS.md and the tech docs in the same change whenever a change invalidates a line or teaches a costly lesson.
-Prefer deleting over adding, pointers over prose, one sentence per bullet.
+- When a change invalidates a line here or in `tech-docs/`, or teaches a costly lesson, update them in the same change.
+- Prefer deleting over adding, pointers over prose, one sentence per bullet.
