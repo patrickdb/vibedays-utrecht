@@ -23,6 +23,8 @@ export default defineConfig({
     env: {
       NEXT_DIST_DIR: distDir,
       DATABASE_URL: `file:${databaseFile}`,
+      // Better Auth rejects requests whose Origin differs from its base URL.
+      BETTER_AUTH_URL: `http://localhost:${port}`,
     },
     // Never attach to a foreign server: a taken port should fail loudly.
     reuseExistingServer: false,

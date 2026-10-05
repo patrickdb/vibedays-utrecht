@@ -17,7 +17,9 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "1.7.7",
     "@libsql/client": "^0.18.0",
+    "better-auth": "1.7.7",
     "drizzle-orm": "^1.0.0-rc.4",
     "next": "16.3.8",
     "react": "19.3.0",

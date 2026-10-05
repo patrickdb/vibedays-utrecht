@@ -51,6 +51,7 @@ Index:
 - [workspaces.md](tech-docs/workspaces.md) — the npm workspace layout and why it exists before its content does.
 - [testing.md](tech-docs/testing.md) — Vitest and Playwright strategy, commands and gotchas.
 - [database.md](tech-docs/database.md) — Drizzle on SQLite via libsql: the single db module, migrations, test databases.
+- [auth.md](tech-docs/auth.md) — Better Auth: plugins, the single session helper, generated schema, tests.
 
 ## Keeping this map current
 
