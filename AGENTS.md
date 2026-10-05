@@ -22,6 +22,9 @@ Run from the repo root.
 - `npm run build` builds the app for production.
 - `npm run lint` runs `biome check` (lint, format and import order); it must pass before every commit.
 - `npm run format` rewrites files with the Biome formatter.
+- `npm run qa` runs lint, typecheck, build, unit and e2e tests; see [testing.md](tech-docs/testing.md).
+
+**Run `npm run qa` before you call a task done. Fix the code instead of suppressing findings** (no `biome-ignore`, `@ts-ignore`, skipped tests or loosened config).
 
 ## Verify, don't recall
 

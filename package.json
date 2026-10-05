@@ -8,6 +8,8 @@
     "start": "next start",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit && npm run typecheck --workspaces --if-present",
+    "qa": "bash scripts/qa.sh",
     "lint": "biome check",
     "format": "biome format --write"
   },
