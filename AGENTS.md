@@ -54,6 +54,7 @@ Index:
 - [testing.md](tech-docs/testing.md) — Vitest and Playwright strategy, commands and gotchas.
 - [database.md](tech-docs/database.md) — Drizzle on SQLite via libsql: the single db module, migrations, test databases.
 - [auth.md](tech-docs/auth.md) — Better Auth: plugins, the single session helper, generated schema, tests.
+- [rest-api.md](tech-docs/rest-api.md) — the `/api/todos` endpoints and how to get a bearer token.
 
 ## Keeping this map current
 
