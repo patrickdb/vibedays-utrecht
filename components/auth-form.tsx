@@ -6,7 +6,13 @@ import { Button, Field, Form, FormError } from "@/components/ui/form";
 import { authClient } from "@/lib/auth-client";
 
 // One form for both pages: sign-up additionally asks for a name.
-export function AuthForm({ mode }: { mode: "signup" | "login" }) {
+export function AuthForm({
+  mode,
+  next = "/",
+}: {
+  mode: "signup" | "login";
+  next?: string;
+}) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -32,7 +38,7 @@ export function AuthForm({ mode }: { mode: "signup" | "login" }) {
       setPending(false);
       return;
     }
-    router.push("/");
+    router.push(next);
     router.refresh();
   }
 

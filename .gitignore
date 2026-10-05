@@ -65,6 +65,7 @@ next-env.d.ts
 
 # test output
 /.next-e2e/
+/.next-cli-test/
 /test-results/
 /playwright-report/
 /.qa/

@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # todo-cat
 
 A to-do list web app kept by Lissie, a cat with attitude (an AI agent, coming later).
-Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI, still empty).
+Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI).
 
 ## Commands
 
@@ -19,7 +19,7 @@ Run from the repo root.
 
 - `npm install` installs the root app and both workspaces.
 - `npm run dev` starts the dev server on http://localhost:3000.
-- `npm run build` builds the app for production.
+- `npm run build` builds the app for production and bundles the CLI; `npx todo-cat --help` runs the CLI (see [cli.md](tech-docs/cli.md)).
 - `npm run lint` runs `biome check` (lint, format and import order); it must pass before every commit.
 - `npm run format` rewrites files with the Biome formatter.
 - `npm run db:generate`, `db:migrate` and `db:reset` manage the SQLite database; see [database.md](tech-docs/database.md).
@@ -55,6 +55,7 @@ Index:
 - [database.md](tech-docs/database.md) — Drizzle on SQLite via libsql: the single db module, migrations, test databases.
 - [auth.md](tech-docs/auth.md) — Better Auth: plugins, the single session helper, generated schema, tests.
 - [rest-api.md](tech-docs/rest-api.md) — the `/api/todos` endpoints and how to get a bearer token.
+- [cli.md](tech-docs/cli.md) — the `todo-cat` CLI: commands, agent-friendly output, device login, tests.
 
 ## Keeping this map current
 

@@ -4,7 +4,7 @@
 
 - The repo root is the Next.js web app and also the npm workspace root (`workspaces` in `package.json`).
 - `contract/` (package `@todo-cat/contract`) holds the zod schemas shared by the web app and the CLI (see [architecture.md](architecture.md)). It ships TypeScript source (`exports` points at `src/index.ts`), so `next.config.ts` lists it in `transpilePackages`; Vitest and tsx handle it without help.
-- `cli/` (package `todo-cat-cli`) will hold the todo-cat command-line client.
+- `cli/` (package `todo-cat-cli`) holds the todo-cat command-line client (see [cli.md](cli.md)).
 
 ## Why the workspaces exist before their content
 

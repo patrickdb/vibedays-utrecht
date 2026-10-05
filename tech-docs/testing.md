@@ -3,7 +3,7 @@
 ## Strategy
 
 - Two layers: Vitest for unit and integration tests, Playwright for end-to-end tests. Prefer the lowest layer that can prove the behavior.
-- Unit tests live in `tests/unit/` (`*.test.ts(x)`, jsdom, config in `vitest.config.mts`); the `@/` alias works via tsconfig paths.
+- Unit tests live in `tests/unit/` (`*.test.ts(x)`, jsdom, config in `vitest.config.mts`); the `@/` alias works via tsconfig paths. The CLI integration test lives in `cli/tests/` (real server, see [cli.md](cli.md)); the root tsconfig excludes `cli/`, so it cannot use `@/`.
 - E2E tests live in `tests/e2e/` (`*.spec.ts`, Chromium only, config in `playwright.config.ts`).
 - Vitest cannot render `async` Server Components (Next.js docs); cover those with E2E.
 
@@ -15,6 +15,7 @@
 
 ## Gotchas
 
+- The CLI test's dev server uses `.next-cli-test` the same way; both dist dirs are listed in `tsconfig.json` and `.gitignore`.
 - The E2E dev server uses its own dist dir (`.next-e2e`, via `NEXT_DIST_DIR` read in `next.config.ts`) so it does not collide with the `.next` lock of a running `npm run dev`.
 - `next dev` rewrites `tsconfig.json` (adds `.next-e2e/...` type includes, reflows arrays); keep those includes committed and Biome-formatted or `npm run lint` fails after an E2E run.
 - Playwright never reuses an already running server; a taken port fails loudly. Override `E2E_PORT` (default 3100), `E2E_DIST_DIR` (default `.next-e2e`) and `E2E_DATABASE_FILE` (default: fresh temp file) to run several checkouts at once. The server gets `DATABASE_URL=file:<that file>`.
@@ -24,7 +25,7 @@
 
 ## QA script
 
-- `npm run qa` (`scripts/qa.sh`) is the single gate: lint, typecheck (root plus every workspace with a `typecheck` script), build, unit, e2e. Sections run in that order and all run even after a failure.
+- `npm run qa` (`scripts/qa.sh`) is the single gate: lint, typecheck (root plus every workspace with a `typecheck` script, so `cli/`), build (the app and the CLI bundle), unit (includes the CLI test), e2e. Sections run in that order and all run even after a failure.
 - Output is plain text. A passing section prints one PASS line; a failing section prints its full output. Every section also logs to `.qa/<section>.log` (gitignored). Exit code is non-zero if any section failed.
 - `npm run typecheck` runs `next typegen` first: types like `LayoutProps` are generated into `.next/types` (gitignored), so a clean checkout (CI) cannot typecheck without it.
 - Biome only enforces its recommended rules; an unused variable is not an error, `debugger` is.

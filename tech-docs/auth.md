@@ -4,7 +4,7 @@
 
 - Better Auth, email and password only, pinned to exactly `1.7.7` for both `better-auth` and `@better-auth/drizzle-adapter` (`--save-exact`; the two must move together). Docs start at https://better-auth.com/llms.txt (append `.md` to a docs URL for plain text).
 - `lib/auth.ts` is the server instance: Drizzle adapter on `lib/db.ts`, plus the `bearer` and `deviceAuthorization` plugins. `nextCookies()` must stay the last plugin. `lib/auth-client.ts` is the browser client; it already carries the device-authorization client plugin.
-- `bearer` exists so the REST API and the CLI can send `Authorization: Bearer <token>`; the token is the `set-auth-token` response header of a sign-in. `deviceAuthorization` is configured with `verificationUri: "/device"` for the CLI's `gh auth login`-style flow; its page and client UI do not exist yet.
+- `bearer` exists so the REST API and the CLI can send `Authorization: Bearer <token>`; the token is the `set-auth-token` response header of a sign-in. `deviceAuthorization` is configured with `verificationUri: "/device"` for the CLI's `gh auth login`-style flow; the approval page is `app/device/page.tsx` (see [cli.md](cli.md)).
 - The route handler is `app/api/auth/[...all]/route.ts`. Forms are client components calling `authClient`; shared styling lives in `components/ui/form.tsx` (no class strings in pages).
 
 ## One place reads sessions
