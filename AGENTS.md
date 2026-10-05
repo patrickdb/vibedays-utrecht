@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # todo-cat
 
 A to-do list web app kept by Lissie, a cat with attitude (an AI agent, coming later).
-Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI), both still empty.
+Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI, still empty).
 
 ## Commands
 
@@ -23,6 +23,7 @@ Run from the repo root.
 - `npm run lint` runs `biome check` (lint, format and import order); it must pass before every commit.
 - `npm run format` rewrites files with the Biome formatter.
 - `npm run db:generate`, `db:migrate` and `db:reset` manage the SQLite database; see [database.md](tech-docs/database.md).
+- `npm run db:seed` fills the dev database with a demo user and todos (`demo@todo-cat.dev` / `cat-person-2026`); safe to repeat.
 - `npm run qa` runs lint, typecheck, build, unit and e2e tests; see [testing.md](tech-docs/testing.md).
 
 **Run `npm run qa` before you call a task done. Fix the code instead of suppressing findings** (no `biome-ignore`, `@ts-ignore`, skipped tests or loosened config).
@@ -48,6 +49,7 @@ Libraries here are newer than your training data; look things up before writing 
 
 Index:
 
+- [architecture.md](tech-docs/architecture.md) — the todo service, the contract and the thin adapters around them.
 - [workspaces.md](tech-docs/workspaces.md) — the npm workspace layout and why it exists before its content does.
 - [testing.md](tech-docs/testing.md) — Vitest and Playwright strategy, commands and gotchas.
 - [database.md](tech-docs/database.md) — Drizzle on SQLite via libsql: the single db module, migrations, test databases.

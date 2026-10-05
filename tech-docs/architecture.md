@@ -25,7 +25,14 @@ around it. Hexagonal (ports and adapters), without the ceremony.
 - The service returns contract types (plain objects, dates as ISO strings), never
   Drizzle rows.
 - Rule violations are a few typed errors with stable codes (`todo-not-found`,
-  `validation-failed`). Adapters map them; they don't invent their own.
+  `validation-failed`). Adapters map them; they don't invent their own. `TodoError`
+  carries the code; the service throws `todo-not-found`, and adapters throw
+  `validation-failed` when a schema parse fails.
+- The last parameter of `addTodo` and `updateTodo` is `now`, so tests and the dev seed
+  (`lib/dev-seed.ts`, see [database.md](database.md)) can backdate `createdAt` and
+  `completedAt`. The seed goes through the service like any adapter.
+- Lists are newest first. Text search is a case-insensitive substring of the title
+  (`%` and `_` in the query are literal).
 
 ## Data
 
@@ -33,7 +40,9 @@ around it. Hexagonal (ports and adapters), without the ceremony.
   done, created at, completed at.
 - A due date is a date without time and stays an ISO `yyyy-mm-dd` string everywhere.
   A JavaScript `Date` is midnight UTC and shows the previous day west of Greenwich.
-- `completed at` is set when a todo is marked done and cleared when it's reopened.
+- `completed at` is set when a todo is marked done and cleared when it's reopened;
+  marking an already done todo done keeps the original time.
+- The table is `todos` in `lib/schema.ts`; the owner column is `user_id`.
 
 ## The contract
 
@@ -43,6 +52,10 @@ around it. Hexagonal (ports and adapters), without the ceremony.
   them, so a server change that breaks the shape fails loudly in the client.
 - Validation lives in the schemas, at the adapter boundary. The service trusts its
   typed input but always enforces ownership.
+- Schemas are in `contract/src/index.ts`. The service takes the parsed (`z.infer`)
+  types, so defaults are already applied: an add has `dueDate: null`, a filter has a
+  `status` (default `all`). An update needs at least one field; `dueDate: null` clears
+  the date.
 
 ## Adapters
 
@@ -68,3 +81,6 @@ around it. Hexagonal (ports and adapters), without the ceremony.
 - The service is tested against a temp database with **two users for every use case**:
   one user never sees, changes, or deletes the other's todos.
 - Adapter tests cover only the mapping: 401 without a user, error codes, status codes.
+- `tests/unit/todo-service.test.ts` is the service suite; `dev-seed.test.ts` checks the
+  seed is repeatable. Both need `// @vitest-environment node` and a `server-only` mock,
+  like the other database tests (see [testing.md](testing.md)).

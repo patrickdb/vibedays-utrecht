@@ -1,6 +1,6 @@
 // Better Auth tables for the plugins in lib/auth.ts (email and password,
 // bearer, device authorization). Keep in step with `npx auth@latest generate`
-// whenever those plugins change. Todo tables arrive with the todo architecture.
+// whenever those plugins change. The `todos` table is ours.
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -32,6 +32,24 @@ export const user = sqliteTable("user", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+// A due date is a calendar date, stored as an ISO `yyyy-mm-dd` string (see
+// tech-docs/architecture.md); the other timestamps are epoch milliseconds.
+export const todos = sqliteTable(
+  "todos",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    dueDate: text("due_date"),
+    done: integer("done", { mode: "boolean" }).default(false).notNull(),
+    createdAt: createdAt(),
+    completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+  },
+  (table) => [index("todos_userId_idx").on(table.userId)],
+);
 
 export const session = sqliteTable(
   "session",
