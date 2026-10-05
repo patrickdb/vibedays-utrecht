@@ -18,7 +18,7 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${port}`, trace: "on-first-retry" },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: `npx next dev --port ${port}`,
+    command: `npm run db:migrate && npx next dev --port ${port}`,
     url: `http://localhost:${port}`,
     env: {
       NEXT_DIST_DIR: distDir,

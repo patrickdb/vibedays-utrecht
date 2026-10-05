@@ -22,14 +22,20 @@ Run from the repo root.
 - `npm run build` builds the app for production.
 - `npm run lint` runs `biome check` (lint, format and import order); it must pass before every commit.
 - `npm run format` rewrites files with the Biome formatter.
+- `npm run db:generate`, `db:migrate` and `db:reset` manage the SQLite database; see [database.md](tech-docs/database.md).
 - `npm run qa` runs lint, typecheck, build, unit and e2e tests; see [testing.md](tech-docs/testing.md).
 
 **Run `npm run qa` before you call a task done. Fix the code instead of suppressing findings** (no `biome-ignore`, `@ts-ignore`, skipped tests or loosened config).
 
-## Verify, don't recall
+## Researching docs
 
-- Next.js, React, Tailwind, TypeScript and Biome here are newer than your training data.
-- Check APIs against current docs (`node_modules/next/dist/docs/` for Next.js) before writing code, not against memory.
+Libraries here are newer than your training data; look things up before writing code, never recall.
+
+- Next.js: `node_modules/next/dist/docs/`.
+- Drizzle and other vendors that publish an `llms.txt` (e.g. https://orm.drizzle.team/llms.txt): start there and follow the links to the relevant pages.
+- Mastra, CopilotKit and design work: the installed skills in `.claude/skills/` (`mastra`, `copilotkit`, `impeccable`, `frontend-design`).
+- Any other library, and the fallback when the above has no answer: the `ctx7` CLI from the `find-docs` skill (`npx ctx7@latest library <name> "<question>"`, then `docs <id> "<question>"`).
+- Prefer the installed package (`node_modules/<pkg>`, its types) over docs when they disagree: the code is what runs.
 
 ## Tech docs
 
@@ -44,6 +50,7 @@ Index:
 
 - [workspaces.md](tech-docs/workspaces.md) — the npm workspace layout and why it exists before its content does.
 - [testing.md](tech-docs/testing.md) — Vitest and Playwright strategy, commands and gotchas.
+- [database.md](tech-docs/database.md) — Drizzle on SQLite via libsql: the single db module, migrations, test databases.
 
 ## Keeping this map current
 
