@@ -26,6 +26,7 @@
 
 - `npm run qa` (`scripts/qa.sh`) is the single gate: lint, typecheck (root plus every workspace with a `typecheck` script), build, unit, e2e. Sections run in that order and all run even after a failure.
 - Output is plain text. A passing section prints one PASS line; a failing section prints its full output. Every section also logs to `.qa/<section>.log` (gitignored). Exit code is non-zero if any section failed.
+- `npm run typecheck` runs `next typegen` first: types like `LayoutProps` are generated into `.next/types` (gitignored), so a clean checkout (CI) cannot typecheck without it.
 - Biome only enforces its recommended rules; an unused variable is not an error, `debugger` is.
 
 ## CI
