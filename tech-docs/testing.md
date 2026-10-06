@@ -5,6 +5,7 @@
 - Two layers: Vitest for unit and integration tests, Playwright for end-to-end tests. Prefer the lowest layer that can prove the behavior.
 - Unit tests live in `tests/unit/` (`*.test.ts(x)`, jsdom, config in `vitest.config.mts`); the `@/` alias works via tsconfig paths. The CLI integration test lives in `cli/tests/` (real server, see [cli.md](cli.md)); the root tsconfig excludes `cli/`, so it cannot use `@/`.
 - E2E tests live in `tests/e2e/` (`*.spec.ts`, Chromium only, config in `playwright.config.ts`).
+- `tests/e2e-chat/` holds the chat e2e that calls the model; it has its own config and `npm run test:e2e:chat`, and stays out of `qa` and CI (see [agent.md](agent.md)).
 - Vitest cannot render `async` Server Components (Next.js docs); cover those with E2E.
 
 ## Commands
@@ -21,6 +22,7 @@
 - Playwright never reuses an already running server; a taken port fails loudly. Override `E2E_PORT` (default 3100), `E2E_DIST_DIR` (default `.next-e2e`) and `E2E_DATABASE_FILE` (default: fresh temp file) to run several checkouts at once. The server gets `DATABASE_URL=file:<that file>`.
 - A non-default `E2E_DIST_DIR` makes `next dev` add that dir to `tsconfig.json`; do not commit that change.
 - `npm run qa` runs `next build`, which uses `.next`: stop `npm run dev` first or expect a lock clash.
+- Playwright timeouts are long on purpose: the dev server compiles `/` (Mastra, CopilotKit) on the first request, which alone can take over a minute on Windows.
 - The first run is slow on Windows (jsdom and the dev server cold start); the later runs are much faster.
 
 ## QA script

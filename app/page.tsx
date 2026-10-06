@@ -1,9 +1,11 @@
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { LissieChat } from "@/components/lissie-chat";
 import { SignOutButton } from "@/components/sign-out-button";
-import { AuthCard } from "@/components/ui/form";
+import { AppShell } from "@/components/ui/app-shell";
 import { db } from "@/lib/db";
+import { threadIdFor } from "@/lib/lissie";
 import { user } from "@/lib/schema";
 import { getUserId } from "@/lib/session";
 
@@ -17,8 +19,18 @@ export default async function Home() {
     .where(eq(user.id, userId));
 
   return (
-    <AuthCard title={`Hello, ${me?.name ?? "friend"}`}>
-      <SignOutButton />
-    </AuthCard>
+    <AppShell
+      title="Lissie"
+      actions={
+        <>
+          <span className="text-sm text-zinc-600 dark:text-zinc-400">
+            {me?.name ?? "friend"}
+          </span>
+          <SignOutButton />
+        </>
+      }
+    >
+      <LissieChat threadId={threadIdFor(userId)} />
+    </AppShell>
   );
 }

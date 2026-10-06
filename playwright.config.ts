@@ -13,6 +13,10 @@ const databaseFile =
 
 export default defineConfig({
   testDir: "tests/e2e",
+  // The dev server compiles a route on its first request, and `/` pulls in
+  // Mastra and CopilotKit, so the first navigation is slow.
+  timeout: 120_000,
+  expect: { timeout: 60_000 },
   forbidOnly: !!process.env.CI,
   reporter: "list",
   use: { baseURL: `http://localhost:${port}`, trace: "on-first-retry" },
@@ -28,5 +32,7 @@ export default defineConfig({
     },
     // Never attach to a foreign server: a taken port should fail loudly.
     reuseExistingServer: false,
+    // The first request compiles the app, Mastra and CopilotKit included.
+    timeout: 180_000,
   },
 });

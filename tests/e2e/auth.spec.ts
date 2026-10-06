@@ -16,7 +16,7 @@ test("sign up, sign out, sign in", async ({ page }) => {
 
   await expect(page).toHaveURL("/");
   await expect(
-    page.getByRole("heading", { name: "Hello, Lissie" }),
+    page.getByRole("heading", { level: 1, name: "Lissie" }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Sign out" }).click();
@@ -31,6 +31,6 @@ test("sign up, sign out, sign in", async ({ page }) => {
 
   await expect(page).toHaveURL("/");
   await expect(
-    page.getByRole("heading", { name: "Hello, Lissie" }),
+    page.getByRole("heading", { level: 1, name: "Lissie" }),
   ).toBeVisible();
 });

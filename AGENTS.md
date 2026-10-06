@@ -25,6 +25,7 @@ Run from the repo root.
 - `npm run db:generate`, `db:migrate` and `db:reset` manage the SQLite database; see [database.md](tech-docs/database.md).
 - `npm run db:seed` fills the dev database with a demo user and todos (`demo@todo-cat.dev` / `cat-person-2026`); safe to repeat.
 - `npm run qa` runs lint, typecheck, build, unit and e2e tests; see [testing.md](tech-docs/testing.md).
+- `npm run test:e2e:chat` runs the chat e2e that calls the model (needs a real `OPENROUTER_API_KEY`); it is not part of `qa`.
 
 **Run `npm run qa` before you call a task done. Fix the code instead of suppressing findings** (no `biome-ignore`, `@ts-ignore`, skipped tests or loosened config).
 
@@ -56,6 +57,7 @@ Index:
 - [auth.md](tech-docs/auth.md) — Better Auth: plugins, the single session helper, generated schema, tests.
 - [rest-api.md](tech-docs/rest-api.md) — the `/api/todos` endpoints and how to get a bearer token.
 - [cli.md](tech-docs/cli.md) — the `todo-cat` CLI: commands, agent-friendly output, device login, tests.
+- [agent.md](tech-docs/agent.md) — Lissie: the Mastra agent, memory per user, the CopilotKit runtime and its route authorization.
 
 ## Keeping this map current
 
