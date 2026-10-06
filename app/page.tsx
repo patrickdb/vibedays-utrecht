@@ -3,11 +3,13 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { LissieChat } from "@/components/lissie-chat";
 import { SignOutButton } from "@/components/sign-out-button";
+import { TodoSidebar } from "@/components/todo-sidebar";
 import { AppShell } from "@/components/ui/app-shell";
 import { db } from "@/lib/db";
 import { threadIdFor } from "@/lib/lissie";
 import { user } from "@/lib/schema";
 import { getUserId } from "@/lib/session";
+import { listTodos } from "@/lib/todo-service";
 
 export default async function Home() {
   const userId = await getUserId(await headers());
@@ -17,6 +19,8 @@ export default async function Home() {
     .select({ name: user.name })
     .from(user)
     .where(eq(user.id, userId));
+
+  const todos = await listTodos(userId);
 
   return (
     <AppShell
@@ -30,7 +34,10 @@ export default async function Home() {
         </>
       }
     >
-      <LissieChat threadId={threadIdFor(userId)} />
+      <LissieChat
+        threadId={threadIdFor(userId)}
+        sidebar={<TodoSidebar todos={todos} />}
+      />
     </AppShell>
   );
 }

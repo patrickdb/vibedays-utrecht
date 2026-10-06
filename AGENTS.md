@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # todo-cat
 
-A to-do list web app kept by Lissie, a cat with attitude (an AI agent, coming later).
+A to-do list web app kept by Lissie, a cat with attitude (an AI agent that reads and changes the list).
 Next.js 16 App Router at the repo root, plus npm workspaces `contract/` (shared zod schemas) and `cli/` (the todo-cat CLI).
 
 ## Commands
@@ -57,7 +57,7 @@ Index:
 - [auth.md](tech-docs/auth.md) — Better Auth: plugins, the single session helper, generated schema, tests.
 - [rest-api.md](tech-docs/rest-api.md) — the `/api/todos` endpoints and how to get a bearer token.
 - [cli.md](tech-docs/cli.md) — the `todo-cat` CLI: commands, agent-friendly output, device login, tests.
-- [agent.md](tech-docs/agent.md) — Lissie: the Mastra agent, memory per user, the CopilotKit runtime and its route authorization.
+- [agent.md](tech-docs/agent.md) — Lissie: the Mastra agent and its todo tools, memory per user, the CopilotKit runtime and its route authorization.
 
 ## Keeping this map current
 

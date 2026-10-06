@@ -4,8 +4,10 @@ import {
   CopilotRuntime,
   createCopilotRuntimeHandler,
 } from "@copilotkit/runtime/v2";
+import { RequestContext } from "@mastra/core/request-context";
 import { LISSIE_AGENT_ID, mastra, threadIdFor } from "@/lib/lissie";
 import { LissieRunner } from "@/lib/lissie-runner";
+import { USER_ID_KEY } from "@/lib/lissie-tools";
 import { getUserId } from "@/lib/session";
 
 export const BASE_PATH = "/api/copilotkit";
@@ -18,11 +20,19 @@ export const BASE_PATH = "/api/copilotkit";
 // every route that names a thread must name the caller's own.
 const runtime = new CopilotRuntime({
   // Built per request, so every run carries the signed-in user as its Mastra
-  // memory resource and one user's run never shares an agent instance.
+  // memory resource and as the user id its tools act for, and one user's run
+  // never shares an agent instance or request context. The id comes from the
+  // session here and nowhere else: not from the model, not from the client.
   agents: async ({ request }) => {
     const userId = await getUserId(request.headers);
     if (!userId) throw unauthorized();
-    return MastraAgent.getLocalAgents({ mastra, resourceId: userId });
+    const requestContext = new RequestContext();
+    requestContext.set(USER_ID_KEY, userId);
+    return MastraAgent.getLocalAgents({
+      mastra,
+      resourceId: userId,
+      requestContext,
+    });
   },
   runner: new LissieRunner(),
 });

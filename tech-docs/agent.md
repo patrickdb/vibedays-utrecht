@@ -1,6 +1,6 @@
 # Lissie, the agent
 
-Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit runtime. The chat lives on `/`. She has no tools yet; the system prompt says so and makes her decline everything except the to-do list, in character.
+Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit runtime. The chat lives on `/`, next to a read-only sidebar of the user's todos. She reads and changes the list through three tools; the system prompt makes her decline everything except the to-do list, in character, and comment on every todo she adds or marks done.
 
 ```
  / (CopilotChat) ──▶ /api/copilotkit/[[...slug]] ──▶ CopilotKit runtime ──▶ @ag-ui/mastra ──▶ Mastra agent ──▶ OpenRouter
@@ -11,8 +11,10 @@ Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit r
 
 - `lib/lissie.ts`: the Mastra instance (agent, `Memory`, `LibSQLStore`), the thread-id helpers. The agent is registered under the record key `lissie`; **that key, not the agent's `id`, is the name the browser asks for**.
 - `lib/copilotkit.ts`: the runtime and its fetch handler; `app/api/copilotkit/[[...slug]]/route.ts` only re-exports it for the four verbs the runtime needs.
+- `lib/lissie-tools.ts`: `listTodos`, `addTodo`, `setTodoDone` (see Tools).
 - `lib/lissie-runner.ts`: replays history on reconnect (see Memory).
-- `components/lissie-chat.tsx`: the client chat. The provider is mounted here, not in the layout, so the login pages never talk to the runtime. The CopilotKit stylesheet is imported in `app/layout.tsx`. The dev Inspector is off (`enableInspector={false}`): its overlay swallows clicks in dev.
+- `components/lissie-chat.tsx`: the client chat, the tool-call lines and the sidebar refresh; `components/todo-sidebar.tsx` is the sidebar itself.
+- The provider is mounted in `components/lissie-chat.tsx`, not in the layout, so the login pages never talk to the runtime. The CopilotKit stylesheet is imported in `app/layout.tsx`. The dev Inspector is off (`enableInspector={false}`): its overlay swallows clicks in dev.
 - Versions are pinned exactly (`@mastra/*`, `@ag-ui/*`, `@copilotkit/*`); they move together.
 - `@mastra/*` is in `serverExternalPackages` in `next.config.ts`.
 
@@ -26,7 +28,20 @@ Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit r
 - Mastra memory lives in the app's SQLite file (`DATABASE_URL`, the same libsql file as Drizzle and Better Auth; Mastra owns its `mastra_*` tables and creates them itself, so they are not in `drizzle/`).
 - **One thread per user, with a deterministic id**: `lissie-<Better Auth user id>` (`threadIdFor`). The user id also is the Mastra `resourceId`, taken from the server-side session when the agent is built for the request (`MastraAgent.getLocalAgents` inside the runtime's `agents` factory). The page computes the thread id server-side and hands it to `CopilotChat`.
 - The AG-UI bridge passes the client's `threadId` to Mastra, so the id in the request is the memory thread. That is why ownership is a string comparison and needs no table.
-- The default `InMemoryAgentRunner` forgets chat history on restart while Mastra memory does not. `LissieRunner` extends it: when `connect` finds nothing live for a thread, it replays that user's Mastra thread as a `MESSAGES_SNAPSHOT` (text parts of user and assistant messages only; extend `loadMessages` when tools add message parts).
+- The default `InMemoryAgentRunner` forgets chat history on restart while Mastra memory does not. `LissieRunner` extends it: when `connect` finds nothing live for a thread, it replays that user's Mastra thread as a `MESSAGES_SNAPSHOT` (`toAgUiMessages`: text, plus every tool call that has a result, as an assistant message with `toolCalls` followed by its `tool` message; a call without a result is dropped). That is why the tool lines are still there after a restart.
+
+## Tools
+
+- The tools are one more adapter on the todo service ([architecture.md](architecture.md)): they call `lib/todo-service.ts` and hold no rules. A todo of another user is `{ error: "todo-not-found" }` to the model, like the REST API's 404.
+- **The user id reaches a tool only through Mastra's request context.** The runtime's `agents` factory in `lib/copilotkit.ts` reads the session, puts the id in a fresh `RequestContext` under `USER_ID_KEY` and hands it to `MastraAgent.getLocalAgents` next to the memory `resourceId`; a tool reads it with `userIdOf` and throws without one. No input schema has a user field, so the model cannot name one, and the client has no way to set a context key (the bridge only adds its own `ag-ui` key).
+- The request context is built per request, never shared across users.
+- Her instructions are a function so they can carry today's date, which she needs to turn "tomorrow" into a due date. They tell her to comment on every add and every done, in character; that is prompt-level and only the model e2e exercises it.
+- A new tool needs a line renderer in `ToolCallLines` (`components/lissie-chat.tsx`), or the chat shows no line for it.
+
+## The sidebar
+
+- `components/todo-sidebar.tsx` is a plain component rendered by `app/page.tsx` from `listTodos`. It is read-only: Lissie is the browser's only write path for now.
+- It refreshes because `LissieChat` subscribes to the agent (`onToolCallResultEvent`, `onRunFinalized`) and calls `router.refresh()`, which re-renders the server page. No polling, no browser read route.
 
 ## Authorization
 
@@ -42,8 +57,9 @@ The runtime authorizes nothing by itself. Its in-memory thread store has no owne
 ## Tests
 
 - `tests/unit/copilotkit-auth.test.ts` calls the handler with real bearer tokens: 401 on every route without a session (every route in `RouteInfo`), 403 for a foreign, invented or missing thread on run/connect/stop, 404 for every unserved route whoever asks, and the history replay from Mastra memory. When the runtime gains a route, add it to `otherRoutes` there. It imports Mastra and CopilotKit, so the first run is slow.
-- `tests/e2e/chat-ui.spec.ts` (in QA): the chat renders for a signed-in user, `/info` lists only Lissie, signed out gets 401. No model call.
-- `tests/e2e-chat/chat.spec.ts` (`npm run test:e2e:chat`, config `playwright.chat.config.ts`): sends a real message and reloads. It calls the model through OpenRouter, so it needs `OPENROUTER_API_KEY` in `.env` and is neither in `npm run qa` nor in CI. The default QA `.env` carries a dummy key.
+- `tests/unit/lissie-tools.test.ts`: the executors on a temp database with two users: isolation per tool, no tool runs without a user in the context, a user id smuggled into the input is ignored. The history test in `copilotkit-auth.test.ts` also covers tool-call replay.
+- `tests/e2e/chat-ui.spec.ts` (in QA): the chat and the sidebar render for a signed-in user, `/info` lists only Lissie, signed out gets 401. No model call.
+- `tests/e2e-chat/chat.spec.ts` (`npm run test:e2e:chat`, config `playwright.chat.config.ts`): sends a real message and reloads, and asks her to add "buy milk" (it must appear in the sidebar and as a tool line, also after a reload). It calls the model through OpenRouter, so it needs `OPENROUTER_API_KEY` in `.env` and is neither in `npm run qa` nor in CI. The default QA `.env` carries a dummy key.
 
 ## Gotchas
 

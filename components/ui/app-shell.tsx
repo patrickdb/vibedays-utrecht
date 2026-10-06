@@ -19,7 +19,7 @@ export function AppShell({
         </h1>
         <div className="flex items-center gap-3">{actions}</div>
       </header>
-      <main className="mx-auto min-h-0 w-full max-w-3xl flex-1">
+      <main className="mx-auto min-h-0 w-full max-w-5xl flex-1">
         {children}
       </main>
     </div>

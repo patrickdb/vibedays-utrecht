@@ -268,6 +268,97 @@ describe("history", () => {
     expect(stream).toContain("Fish. Naturally.");
   });
 
+  test("a reconnect replays tool calls with their results", async () => {
+    const memory = await lissie.mastra.getAgent("lissie").getMemory();
+    if (!memory) throw new Error("Lissie has no memory");
+    const threadId = threadOf("alice");
+    const resourceId = users.alice.id;
+    const todo = { id: "t1", title: "buy milk", done: false };
+    await memory.saveMessages({
+      messages: [
+        {
+          id: "m-user-2",
+          role: "user",
+          threadId,
+          resourceId,
+          createdAt: new Date(Date.now() + 100),
+          content: {
+            format: 2 as const,
+            parts: [{ type: "text", text: "Add buy milk" }],
+          },
+        },
+        {
+          id: "m-lissie-2",
+          role: "assistant",
+          threadId,
+          resourceId,
+          createdAt: new Date(Date.now() + 101),
+          content: {
+            format: 2 as const,
+            parts: [
+              {
+                type: "tool-invocation",
+                toolInvocation: {
+                  state: "result",
+                  toolCallId: "call-1",
+                  toolName: "addTodo",
+                  args: { title: "buy milk", dueDate: null },
+                  result: { todo },
+                },
+              },
+              { type: "text", text: "Milk. Of course you forgot it." },
+            ],
+          },
+        },
+      ],
+    });
+
+    const response = await call(
+      "alice",
+      "POST",
+      "/agent/lissie/connect",
+      runInput(threadId),
+    );
+    const stream = await response.text();
+    const snapshot = stream
+      .split("\n")
+      .filter((line) => line.startsWith("data: "))
+      .map((line) => JSON.parse(line.slice(6)))
+      .find((event) => event.type === "MESSAGES_SNAPSHOT");
+    const replayed = snapshot.messages.filter(
+      (m: { id: string }) => m.id.includes("2") || m.id === "call-1-result",
+    );
+    expect(replayed).toEqual([
+      { id: "m-user-2", role: "user", content: "Add buy milk" },
+      {
+        id: "m-lissie-2",
+        role: "assistant",
+        content: "",
+        toolCalls: [
+          {
+            id: "call-1",
+            type: "function",
+            function: {
+              name: "addTodo",
+              arguments: JSON.stringify({ title: "buy milk", dueDate: null }),
+            },
+          },
+        ],
+      },
+      {
+        id: "call-1-result",
+        role: "tool",
+        toolCallId: "call-1",
+        content: JSON.stringify({ todo }),
+      },
+      {
+        id: "m-lissie-2-1",
+        role: "assistant",
+        content: "Milk. Of course you forgot it.",
+      },
+    ]);
+  });
+
   test("Bob's reconnect shows nothing of Alice's conversation", async () => {
     const response = await call(
       "bob",

@@ -23,6 +23,15 @@ test("the chat on / is Lissie's, behind the session", async ({ page }) => {
     page.getByPlaceholder("Tell Lissie what you need to do…"),
   ).toBeVisible();
 
+  // The read-only sidebar lists the user's open and done todos (none yet).
+  const list = page.getByRole("complementary", { name: "Your list" });
+  await expect(list.getByRole("region", { name: "Open" })).toContainText(
+    "Nothing open",
+  );
+  await expect(list.getByRole("region", { name: "Done" })).toContainText(
+    "Nothing finished",
+  );
+
   // The runtime answers the signed-in browser, and nobody else.
   const info = await page.request.get("/api/copilotkit/info");
   expect(info.status()).toBe(200);
