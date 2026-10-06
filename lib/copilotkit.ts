@@ -35,6 +35,10 @@ const runtime = new CopilotRuntime({
     });
   },
   runner: new LissieRunner(),
+  // The middleware renders A2UI operations that a tool returns (showProgress).
+  // injectA2UITool must stay false: left unset it turns on as soon as the browser
+  // registers a catalog, and the model would get a tool that designs UI itself.
+  a2ui: { injectA2UITool: false },
 });
 
 export const handler = createCopilotRuntimeHandler({

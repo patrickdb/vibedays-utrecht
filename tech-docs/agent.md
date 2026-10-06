@@ -12,6 +12,7 @@ Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit r
 - `lib/lissie.ts`: the Mastra instance (agent, `Memory`, `LibSQLStore`), the thread-id helpers. The agent is registered under the record key `lissie`; **that key, not the agent's `id`, is the name the browser asks for**.
 - `lib/copilotkit.ts`: the runtime and its fetch handler; `app/api/copilotkit/[[...slug]]/route.ts` only re-exports it for the four verbs the runtime needs.
 - `lib/lissie-tools.ts`: `listTodos`, `addTodo`, `setTodoDone` (see Tools).
+- `lib/lissie-progress.ts`, `lib/progress-card.ts`, `components/a2ui/`: the progress card (see A2UI card).
 - `lib/lissie-runner.ts`: replays history on reconnect (see Memory).
 - `components/lissie-chat.tsx`: the client chat, the tool-call lines and the sidebar refresh; `components/todo-sidebar.tsx` is the sidebar itself.
 - The provider is mounted in `components/lissie-chat.tsx`, not in the layout, so the login pages never talk to the runtime. The CopilotKit stylesheet is imported in `app/layout.tsx`. The dev Inspector is off (`enableInspector={false}`): its overlay swallows clicks in dev.
@@ -38,6 +39,14 @@ Lissie is one Mastra agent, served to the browser over AG-UI by the CopilotKit r
 - Her instructions are a function so they can carry today's date, which she needs to turn "tomorrow" into a due date. They tell her to comment on every add and every done, in character; that is prompt-level and only the model e2e exercises it.
 - A new tool needs a line renderer in `ToolCallLines` (`components/lissie-chat.tsx`), or the chat shows no line for it.
 
+## A2UI card
+
+- `showProgress` (`lib/lissie-progress.ts`) counts total, done and open from the todo service and returns `{ a2ui_operations }`: `createSurface`, `updateComponents`, `updateDataModel`. The runtime's A2UI middleware renders any tool result with that key; there is no second model call and no render tool.
+- The component tree is authored once in `lib/progress-card.ts` and binds the numbers by path (`/done`, `/total`, `/open`); only the data model carries figures. `PROGRESS_CATALOG_ID` must equal the id of the browser catalog (`components/a2ui/catalog.tsx`: `ProgressBar` plus the basic components), or the renderer says "Catalog not found".
+- **`a2ui: { injectA2UITool: false }` in `lib/copilotkit.ts` is load-bearing**: unset, the runtime turns the injected UI-generating tool on as soon as the browser registers a catalog.
+- The catalog is registered on the provider (`a2ui={{ catalog }}` in `components/lissie-chat.tsx`). The renderer runs on zod 3 (it bundles its own copy), so catalog definitions import `zod/v3`; a prop that binds to the data model must be a literal-or-path union such as `DynamicNumberSchema`.
+- `@a2ui/web_core` and `@ag-ui/a2ui-middleware` are dev dependencies for the test only, pinned to the versions CopilotKit uses.
+
 ## The sidebar
 
 - `components/todo-sidebar.tsx` is a plain component rendered by `app/page.tsx` from `listTodos`. It is read-only: Lissie is the browser's only write path for now.
@@ -57,6 +66,7 @@ The runtime authorizes nothing by itself. Its in-memory thread store has no owne
 ## Tests
 
 - `tests/unit/copilotkit-auth.test.ts` calls the handler with real bearer tokens: 401 on every route without a session (every route in `RouteInfo`), 403 for a foreign, invented or missing thread on run/connect/stop, 404 for every unserved route whoever asks, and the history replay from Mastra memory. When the runtime gains a route, add it to `otherRoutes` there. It imports Mastra and CopilotKit, so the first run is slow.
+- `tests/unit/lissie-progress.test.ts`: the card operations on a temp database (numbers match the rows, per user, tree holds no figures, accepted by the real A2UI message processor and catalog, runtime keeps tool injection off); `tests/unit/progress-bar.test.tsx` covers `ProgressBar`.
 - `tests/unit/lissie-tools.test.ts`: the executors on a temp database with two users: isolation per tool, no tool runs without a user in the context, a user id smuggled into the input is ignored. The history test in `copilotkit-auth.test.ts` also covers tool-call replay.
 - `tests/e2e/chat-ui.spec.ts` (in QA): the chat and the sidebar render for a signed-in user, `/info` lists only Lissie, signed out gets 401. No model call.
 - `tests/e2e-chat/chat.spec.ts` (`npm run test:e2e:chat`, config `playwright.chat.config.ts`): sends a real message and reloads, and asks her to add "buy milk" (it must appear in the sidebar and as a tool line, also after a reload). It calls the model through OpenRouter, so it needs `OPENROUTER_API_KEY` in `.env` and is neither in `npm run qa` nor in CI. The default QA `.env` carries a dummy key.

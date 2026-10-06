@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { z } from "zod";
+import { lissieCatalog } from "@/components/a2ui/catalog";
 
 // `agentId` is the key Lissie is registered under in lib/lissie.ts; `threadId`
 // is her one thread for this user (the server refuses any other). `sidebar` is
@@ -26,6 +27,7 @@ export function LissieChat({
       runtimeUrl="/api/copilotkit"
       agentId="lissie"
       enableInspector={false}
+      a2ui={{ catalog: lissieCatalog }}
     >
       <ToolCallLines />
       <RefreshOnToolResult />
